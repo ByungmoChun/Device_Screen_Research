@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디바이스 화면 사이즈 & 안전 영역 조사 — 플레이북 배포 기준</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1019; --bg2:#151826; --bg3:#1c2030;
+  --line:#2d3556; --line2:#3a4470;
+  --txt:#e8ebf5; --txt2:#9aa3c4; --txt3:#6b7494;
+  --accent:#5DCAA5; --amber:#EF9F27; --blue:#5b8def; --red:#e0699b; --purple:#9d7cd8;
+  --sans:'Noto Sans KR',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);line-height:1.75;-webkit-font-smoothing:antialiased;font-size:15px}
+.wrap{max-width:960px;margin:0 auto;padding:0 28px}
+header{border-bottom:1px solid var(--line);padding:56px 0 32px;margin-bottom:40px;background:linear-gradient(180deg,rgba(93,202,165,.05),transparent)}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+h1{font-size:29px;font-weight:900;letter-spacing:-.02em;line-height:1.25;margin-bottom:10px}
+.sub{font-size:15.5px;color:var(--txt2);margin-bottom:22px;max-width:680px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12.5px;color:var(--txt3)}
+.meta b{color:var(--txt2);font-weight:600}
+section{margin-bottom:46px}
+h2{font-size:21px;font-weight:800;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+h2 .num{font-family:var(--mono);font-size:14px;color:var(--accent);font-weight:700;background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:2px 9px}
+h3{font-size:16.5px;font-weight:700;margin:24px 0 10px;color:var(--txt)}
+p{margin-bottom:13px;color:var(--txt2)}
+p strong,li strong{color:var(--txt);font-weight:700}
+ul,ol{margin:0 0 14px 1.3rem}
+li{margin-bottom:8px;color:var(--txt2)}
+code{font-family:var(--mono);font-size:.87em;background:var(--bg3);padding:1px 6px;border-radius:5px;color:var(--accent)}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.intro{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin-bottom:42px;font-size:15px;line-height:1.8}
+.intro p{color:var(--txt);margin-bottom:11px}
+.intro p:last-child{margin-bottom:0}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{text-align:left;padding:9px 11px;background:var(--bg2);color:var(--txt2);font-weight:700;font-size:11.5px;border-bottom:1px solid var(--line2)}
+.tbl td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--txt2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl b{color:var(--txt)}
+.tbl .mono{font-family:var(--mono);font-size:12px}
+.tbl tr.hl td{background:rgba(93,202,165,.07)}
+.note{border-left:3px solid var(--blue);background:var(--bg2);border-radius:0 10px 10px 0;padding:13px 18px;margin:16px 0;font-size:13.5px;color:var(--txt2)}
+.note.warn{border-color:var(--amber)}
+.note.good{border-color:var(--accent)}
+.note.red{border-color:var(--red)}
+.note b{color:var(--txt)}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:6px}
+.b-green{background:rgba(93,202,165,.16);color:var(--accent)}
+.b-amber{background:rgba(239,159,39,.16);color:var(--amber)}
+.b-red{background:rgba(224,105,155,.16);color:var(--red)}
+.b-blue{background:rgba(91,141,239,.16);color:var(--blue)}
+.cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.card h4{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--txt)}
+.card p{font-size:13px;margin-bottom:0}
+.bar-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:12.5px}
+.bar-label{flex:0 0 150px;color:var(--txt2)}
+.bar-track{flex:1;height:22px;background:var(--bg3);border-radius:5px;position:relative;overflow:hidden;display:flex}
+.bar-content{background:rgba(93,202,165,.4);height:100%;display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--accent);font-weight:700}
+.bar-band{background:rgba(239,159,39,.3);height:100%}
+.bar-val{flex:0 0 90px;text-align:right;font-family:var(--mono);font-size:11.5px;color:var(--txt3)}
+footer{border-top:1px solid var(--line);padding:28px 0 60px;margin-top:50px;font-size:12px;color:var(--txt3);text-align:center}
+@media(max-width:600px){h1{font-size:23px}.wrap{padding:0 18px}.cardgrid{grid-template-columns:1fr}.bar-label{flex:0 0 100px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">화면 사이즈 조사 · Device & Safe Zone Research</div>
+    <h1>디바이스 화면 사이즈 & 안전 영역 조사</h1>
+    <div class="sub">플레이북 콘텐츠 배포 기준을 잡기 위한 디바이스별 해상도·종횡비·안전 영역(safe zone)·레터박스 분석. ScreenSpec 착수 전 선결 자료.</div>
+    <div class="meta">
+      <span><b>목적</b> 작가 배포 캔버스 기준 결정</span>
+      <span><b>조사일</b> 2026-06-29</span>
+      <span><b>대상</b> 개발 TF · 작가</span>
+      <span><b>출처</b> Apple/Samsung 공식 스펙, ScreenResolutionDB, ScreenSizeChecker (2026-02 기준)</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    <p>플레이북은 <strong>한 화면 안의 인터랙션</strong>으로 진행되는 교육 콘텐츠다. 드래그·드롭·획순처럼 <strong>정밀한 좌표 인터랙션</strong>이 핵심이라, 화면 크기 대응 방식이 콘텐츠 동작에 직접 영향을 준다. 이 문서는 작가가 어떤 캔버스에 그려야 모든 기기에서 안전한지를 데이터로 정리한다.</p>
+    <p>핵심 결론부터: 종횡비는 <strong>해상도보다 훨씬 중요</strong>하다. 해상도(픽셀 수)는 스케일링으로 해결되지만, 종횡비(화면 모양)가 다르면 요소가 잘리거나 빈 띠(레터박스)가 생긴다. 콘텐츠는 모두 <strong>가로 모드</strong>(폰도 눕혀서 본다)지만, 패드(4:3)와 가로 폰(16:9~20:9)은 폭이 크게 달라 한 캔버스로는 한쪽이 큰 손실난다. 따라서 <strong>패드 4:3 + 폰 16:9, 두 캔버스를 만들되 로직·에셋은 공유하는 "레이아웃 프로파일" 구조</strong>를 권장한다. (가로 모드에서 기준은 "가장 넓은 비율"이 아니라 <strong>"가장 세로로 긴, 즉 가장 정사각에 가까운 비율"</strong>이다 — 그래야 높이가 꽉 차고 더 납작한 기기에선 좌우 빈 띠만 생긴다.)</p>
+  </div>
+
+  <section>
+    <h2><span class="num">1</span> 먼저 알아야 할 3가지 개념</h2>
+    <div class="cardgrid">
+      <div class="card">
+        <h4>해상도 (Resolution)</h4>
+        <p>화면의 물리적 픽셀 수 (예: 2360×1640). 같은 종횡비라면 해상도가 달라도 <b>스케일링으로 쉽게 대응</b>된다.</p>
+      </div>
+      <div class="card">
+        <h4>뷰포트 (Viewport / CSS px)</h4>
+        <p>웹 레이아웃이 실제로 다루는 논리 픽셀. 물리 해상도 ÷ DPR. 대부분 iPad는 DPR 2, iPhone은 DPR 3. <b>설계는 이 값 기준</b>.</p>
+      </div>
+      <div class="card">
+        <h4>종횡비 (Aspect Ratio)</h4>
+        <p>화면의 가로:세로 모양 (4:3, 16:9, 20:9 등). <b>이게 다르면 잘림·레터박스 발생</b>. 대응의 핵심 변수.</p>
+      </div>
+      <div class="card">
+        <h4>안전 영역 (Safe Zone)</h4>
+        <p>지원 대상 기기 어디에서도 <b>잘리지 않고 보이는 공통 영역</b>. 핵심 인터랙션 요소는 반드시 이 안에 배치한다.</p>
+      </div>
+    </div>
+    <div class="note"><b>DPR 주의 —</b> 작가/디자이너는 뷰포트(CSS 픽셀)로 설계하고, 에셋(이미지)은 2x~3x 고해상도로 내보낸다. 예: 아이패드는 1픽셀이 실제 2픽셀(DPR 2)이라 선명하게 보이려면 2배 크기 이미지가 필요하다.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span> 태블릿 — 가로 모드 주력 디바이스</h2>
+    <p>아동 교육 콘텐츠의 1순위 디바이스. 표는 가로(landscape) 기준 뷰포트다. <strong>아이패드는 대부분 4:3</strong>이고, 일부 신형(10세대·Air 11")만 약간 다른 비율을 쓴다.</p>
+    <table class="tbl">
+      <thead><tr><th>모델</th><th>해상도 (물리)</th><th>뷰포트 (가로, CSS)</th><th>DPR</th><th>종횡비</th><th>출시</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td><b>iPad (9세대 이하)</b></td><td class="mono">2160×1620</td><td class="mono">1080×810</td><td>2.0</td><td><b>4:3</b></td><td>~2021</td></tr>
+        <tr><td>iPad (10세대)</td><td class="mono">2360×1640</td><td class="mono">1180×820</td><td>2.0</td><td>~3:2 (1.44:1)</td><td>2022</td></tr>
+        <tr class="hl"><td><b>iPad Air 11" (M2/M3)</b></td><td class="mono">2360×1640</td><td class="mono">1180×820</td><td>2.0</td><td>~1.44:1</td><td>2024~25</td></tr>
+        <tr><td>iPad Air 13" (M2/M3)</td><td class="mono">2732×2048</td><td class="mono">1366×1024</td><td>2.0</td><td><b>4:3</b></td><td>2024~25</td></tr>
+        <tr><td>iPad Pro 11" (M4)</td><td class="mono">2420×1668</td><td class="mono">1210×834</td><td>2.0</td><td>~1.45:1</td><td>2024</td></tr>
+        <tr class="hl"><td><b>iPad Pro 13" (M4)</b></td><td class="mono">2752×2064</td><td class="mono">1376×1032</td><td>2.0</td><td><b>4:3</b></td><td>2024</td></tr>
+        <tr><td>iPad mini (A17)</td><td class="mono">2266×1488</td><td class="mono">1133×744</td><td>2.0</td><td>~1.52:1</td><td>2024</td></tr>
+        <tr><td>Galaxy Tab S (대표)</td><td class="mono">2560×1600</td><td class="mono">~1280×800</td><td>2.0</td><td><b>16:10</b></td><td>~2024</td></tr>
+      </tbody>
+    </table>
+    <div class="note good"><b>패턴 —</b> 아이패드 라인은 <b>4:3 또는 그에 가까운 1.44~1.45:1</b>에 모여 있다. 안드로이드 태블릿(갤럭시 탭)은 <b>16:10</b>으로 약간 더 넓다. 즉 가로 태블릿은 대략 <b>1.33:1 ~ 1.6:1</b> 범위에 분포한다.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span> 스마트폰 — 가로 모드, 매우 넓은 비율</h2>
+    <p>동화책형 콘텐츠는 폰도 <strong>가로로 눕혀서</strong> 본다. 표는 가로(landscape) 뷰포트다. <strong>최신 폰은 대부분 19.5:9 ~ 20:9로 매우 넓다</strong> — 가로로 누우면 좌우로 길쭉한 와이드 화면이 된다. 태블릿보다 종횡비 편차가 훨씬 크다.</p>
+    <table class="tbl">
+      <thead><tr><th>모델</th><th>해상도 (물리)</th><th>뷰포트 (가로, CSS)</th><th>DPR</th><th>종횡비 (가로)</th><th>출시</th></tr></thead>
+      <tbody>
+        <tr><td>iPhone SE (3세대)</td><td class="mono">1334×750</td><td class="mono">667×375</td><td>2</td><td>~16:9</td><td>2022</td></tr>
+        <tr class="hl"><td><b>iPhone 15/16/17</b></td><td class="mono">2622×1206</td><td class="mono">~852×393</td><td>3</td><td><b>~19.5:9</b></td><td>2023~25</td></tr>
+        <tr><td>iPhone 16/17 Pro Max</td><td class="mono">2868×1320</td><td class="mono">956×440</td><td>3</td><td>~19.5:9</td><td>2024~25</td></tr>
+        <tr class="hl"><td><b>Galaxy S24</b></td><td class="mono">2340×1080</td><td class="mono">780×360</td><td>3</td><td><b>19.5:9</b></td><td>2024</td></tr>
+        <tr><td>Galaxy 20:9 계열</td><td class="mono">2400×1080</td><td class="mono">800×360</td><td>3</td><td><b>20:9</b></td><td>~2024</td></tr>
+        <tr><td>구형 안드로이드</td><td class="mono">1920×1080</td><td class="mono">640×360</td><td>3</td><td>16:9</td><td>~2018</td></tr>
+      </tbody>
+    </table>
+    <div class="note warn"><b>편차 주의 —</b> 가로 폰은 <b>16:9(1.78배)부터 20:9(2.22배)까지</b> 폭 편차가 크다. 가로 모드에선 보통 <b>높이가 기준축</b>이 된다 — 16:9는 가로 폰 중 가장 세로로 길고(덜 납작), 20:9는 가장 납작하다. <b>4:3 캔버스를 가로 폰에 올리면 높이는 꽉 차지만 좌우가 크게 비는</b> 게 문제다(20:9에서 좌우 합 40%).</div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span> 데스크톱 / 웹</h2>
+    <p>웹 임베드·PC 재생용. 거의 전부 <strong>16:9 가로</strong>다.</p>
+    <table class="tbl">
+      <thead><tr><th>환경</th><th>대표 해상도</th><th>종횡비</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td><b>일반 데스크톱·노트북</b></td><td class="mono">1920×1080</td><td><b>16:9</b></td><td>가장 보편</td></tr>
+        <tr><td>구형·소형 노트북</td><td class="mono">1366×768</td><td>16:9</td><td>세로 공간 좁음</td></tr>
+        <tr><td>고해상도 모니터</td><td class="mono">2560×1440</td><td>16:9</td><td>비율 동일, 해상도만 큼</td></tr>
+        <tr><td>맥북 (일부)</td><td class="mono">~1512×982</td><td>~16:10</td><td>약간 더 높음</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span> 레터박스 / 안전 영역 — 핵심 분석</h2>
+    <p>여기가 결정의 근거다. <strong>4:3을 기준 캔버스로 잡았을 때</strong> 각 기기에서 빈 띠(레터박스)가 얼마나 생기는지 계산했다. 4:3은 잘림 없이 빈 띠만 만들어, 인터랙션 좌표가 안전하다.</p>
+
+    <h3>가로 모드 — 4:3 캔버스를 실제 기기에 올림</h3>
+    <p style="font-size:13px;color:var(--txt3);margin-bottom:6px">청록 = 4:3 콘텐츠(작가가 그린 영역) · 회색 외곽 = 각 기기 실제 화면 · 주황 = 좌우 빈 띠</p>
+    <svg viewBox="0 0 680 300" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="4:3 콘텐츠를 4:3 아이패드, 16:10 갤럭시탭, 16:9 PC에 올렸을 때의 빈 띠 비교">
+      <g>
+        <rect x="40" y="40" width="190" height="143" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="40" y="40" width="190" height="143" rx="4" fill="#5DCAA5" fill-opacity="0.5" stroke="#5DCAA5" stroke-width="0.5"/>
+        <text x="135" y="106" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="14" font-weight="700">4:3 아이패드</text>
+        <text x="135" y="126" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12">빈 띠 0% · 꽉 참</text>
+        <text x="135" y="205" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12">기준 캔버스</text>
+      </g>
+      <g>
+        <rect x="270" y="40" width="172" height="108" rx="5" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="284" y="40" width="144" height="108" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+        <rect x="270" y="40" width="14" height="108" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="428" y="40" width="14" height="108" fill="#BA7517" fill-opacity="0.5"/>
+        <text x="356" y="90" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="13" font-weight="700">16:10 갤럭시탭</text>
+        <text x="356" y="108" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12">콘텐츠 83%</text>
+        <text x="356" y="170" text-anchor="middle" fill="#633806" font-family="Noto Sans KR,sans-serif" font-size="12">좌우 각 8.3%</text>
+      </g>
+      <g>
+        <rect x="470" y="40" width="170" height="96" rx="5" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="491" y="40" width="128" height="96" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+        <rect x="470" y="40" width="21" height="96" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="619" y="40" width="21" height="96" fill="#BA7517" fill-opacity="0.5"/>
+        <text x="555" y="84" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="13" font-weight="700">16:9 PC·TV</text>
+        <text x="555" y="102" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12">콘텐츠 75%</text>
+        <text x="555" y="158" text-anchor="middle" fill="#633806" font-family="Noto Sans KR,sans-serif" font-size="12">좌우 각 12.5%</text>
+      </g>
+      <text x="40" y="245" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12.5">넓은 화면(16:10 → 16:9)으로 갈수록 좌우 빈 띠가 커지지만 최대 12.5%로 완만하다.</text>
+      <text x="40" y="267" fill="#5DCAA5" font-family="Noto Sans KR,sans-serif" font-size="12.5">콘텐츠는 하나도 잘리지 않음 — 빈 띠만 배경 일러스트로 채우면 된다.</text>
+    </svg>
+    <div class="note good"><b>가로 결론 —</b> 4:3 캔버스로 그리면 최악(16:9 PC)에서도 좌우 각 12.5% 빈 띠뿐. <b>잘리는 인터랙션 요소는 없다.</b> 빈 띠는 배경 일러스트로 자연스럽게 채울 수 있다. 아이패드(4:3 또는 근접)에서는 거의 꽉 찬다.</div>
+
+    <h3>문제 — 4:3 캔버스를 가로 폰에 올리면 좌우 40% 손실</h3>
+    <p style="font-size:13px;color:var(--txt3);margin-bottom:6px">폰도 가로로 눕혀 본다. 그런데 가로 폰은 4:3보다 훨씬 넓어서, 4:3 콘텐츠는 높이만 꽉 차고 좌우가 크게 빈다. 청록 = 4:3 콘텐츠 · 빨강 = 빈 띠</p>
+    <svg viewBox="0 0 680 230" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="4:3 콘텐츠를 가로 16:9 폰과 20:9 폰에 올렸을 때 좌우에 생기는 큰 빈 띠">
+      <g>
+        <rect x="40" y="40" width="240" height="135" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="70" y="40" width="180" height="135" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+        <rect x="40" y="40" width="30" height="135" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="250" y="40" width="30" height="135" fill="#BA7517" fill-opacity="0.5"/>
+        <text x="160" y="100" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="13" font-weight="700">16:9 가로 폰</text>
+        <text x="160" y="118" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12">콘텐츠 75%</text>
+        <text x="55" y="115" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="11" font-weight="700">12.5%</text>
+        <text x="265" y="115" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="11" font-weight="700">12.5%</text>
+      </g>
+      <g>
+        <rect x="340" y="40" width="300" height="135" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="400" y="40" width="180" height="135" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+        <rect x="340" y="40" width="60" height="135" fill="#A32D2D" fill-opacity="0.45"/>
+        <rect x="580" y="40" width="60" height="135" fill="#A32D2D" fill-opacity="0.45"/>
+        <text x="490" y="100" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="13" font-weight="700">20:9 가로 폰</text>
+        <text x="490" y="118" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12">콘텐츠 60%</text>
+        <text x="370" y="115" text-anchor="middle" fill="#fff" font-family="Noto Sans KR,sans-serif" font-size="11" font-weight="700">20%</text>
+        <text x="610" y="115" text-anchor="middle" fill="#fff" font-family="Noto Sans KR,sans-serif" font-size="11" font-weight="700">20%</text>
+      </g>
+      <text x="40" y="205" fill="#A32D2D" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">20:9 폰에선 좌우 합쳐 40%가 빈 띠 — 콘텐츠가 화면의 60%만 차지해 양옆이 휑하다.</text>
+    </svg>
+    <div class="note red"><b>4:3 → 가로 폰의 한계 —</b> 4:3 캔버스를 그대로 가로 폰에 올리면 <b>20:9에서 좌우 합 40% 손실</b>(콘텐츠 60%). 잘림은 없지만 양옆이 크게 비어 동화 화면이 답답하다. 그래서 <b>폰용은 더 넓은 비율로 별도 제작</b>이 필요하다.</div>
+
+    <h3>왜 20:9 캔버스는 안 되나 — 16:9에서 상하 잘림·축소</h3>
+    <p style="font-size:13px;color:var(--txt3);margin-bottom:6px">20:9는 16:9보다 더 납작하다. 20:9로 그린 콘텐츠를 16:9 폰에 넣으면, 폭을 맞추면 상하에 띠(콘텐츠 축소), 높이를 채우면 좌우 잘림 — 어느 쪽도 좋지 않다. 청록 = 20:9 콘텐츠 · 회색 외곽 = 16:9 폰</p>
+    <svg viewBox="0 0 680 240" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="20:9 콘텐츠를 16:9 폰에 넣을 때 상하 띠로 축소되거나 좌우가 잘리는 문제">
+      <g>
+        <rect x="40" y="55" width="270" height="152" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="40" y="85" width="270" height="92" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+        <rect x="40" y="55" width="270" height="30" fill="#A32D2D" fill-opacity="0.45"/>
+        <rect x="40" y="177" width="270" height="30" fill="#A32D2D" fill-opacity="0.45"/>
+        <text x="175" y="128" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">폭 맞춤 (contain)</text>
+        <text x="175" y="146" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="11">콘텐츠 높이 80%로 축소</text>
+        <text x="175" y="74" text-anchor="middle" fill="#fff" font-family="Noto Sans KR,sans-serif" font-size="10.5" font-weight="700">상하 띠 — 에셋 작아짐</text>
+        <text x="175" y="42" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">방법 ①</text>
+      </g>
+      <g>
+        <rect x="370" y="55" width="270" height="152" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="392" y="55" width="226" height="152" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+        <rect x="370" y="55" width="22" height="152" fill="#A32D2D" fill-opacity="0.55"/>
+        <rect x="618" y="55" width="22" height="152" fill="#A32D2D" fill-opacity="0.55"/>
+        <text x="505" y="128" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">높이 맞춤 (cover)</text>
+        <text x="505" y="146" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="11">좌우 20% 잘림</text>
+        <text x="381" y="135" text-anchor="middle" fill="#fff" font-family="Noto Sans KR,sans-serif" font-size="10" font-weight="700">잘림</text>
+        <text x="629" y="135" text-anchor="middle" fill="#fff" font-family="Noto Sans KR,sans-serif" font-size="10" font-weight="700">잘림</text>
+        <text x="505" y="42" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">방법 ②</text>
+      </g>
+      <text x="40" y="230" fill="#A32D2D" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">20:9 기준은 16:9 폰에서 콘텐츠가 축소되거나(에셋 못 씀) 좌우가 잘린다 — 둘 다 손해.</text>
+    </svg>
+    <div class="note red"><b>20:9 기준의 함정 —</b> 20:9는 가로 폰 중 <b>가장 납작한</b> 비율이다. 이걸 기준으로 그리면 더 세로가 긴 16:9 폰에서 <b>높이가 80%로 줄어(에셋이 작아져 못 씀) 또는 좌우 20% 잘림</b>이 발생한다. "가장 넓은 비율"을 기준으로 잡은 게 실수였다.</div>
+
+    <h3>해법 — 폰용은 16:9 캔버스 (가장 세로로 긴 비율)</h3>
+    <p style="font-size:13px;color:var(--txt3);margin-bottom:6px">16:9는 가로 폰 중 가장 세로로 길다. 이걸 기준으로 그리면 모든 폰에서 <b>높이가 항상 꽉 차고</b>(에셋 크기 유지), 더 납작한 폰(20:9)에선 좌우에 빈 띠만 생긴다. 청록 = 16:9 콘텐츠 · 주황 = 빈 띠</p>
+    <svg viewBox="0 0 680 240" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="16:9 캔버스를 16:9 폰과 20:9 폰에 올렸을 때 높이는 꽉 차고 좌우에만 빈 띠가 생기는 모습">
+      <g>
+        <rect x="60" y="55" width="240" height="135" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="60" y="55" width="240" height="135" rx="4" fill="#5DCAA5" fill-opacity="0.5" stroke="#5DCAA5" stroke-width="0.5"/>
+        <text x="180" y="115" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="14" font-weight="700">16:9 가로 폰</text>
+        <text x="180" y="134" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12">빈 띠 0% · 꽉 참 (기준)</text>
+        <text x="180" y="44" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">기준 캔버스</text>
+      </g>
+      <g>
+        <rect x="360" y="55" width="300" height="135" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="390" y="55" width="240" height="135" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+        <rect x="360" y="55" width="30" height="135" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="630" y="55" width="30" height="135" fill="#BA7517" fill-opacity="0.5"/>
+        <text x="510" y="115" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="13" font-weight="700">20:9 가로 폰</text>
+        <text x="510" y="133" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12">높이 꽉 · 콘텐츠 폭 80%</text>
+        <text x="375" y="130" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="11" font-weight="700">10%</text>
+        <text x="645" y="130" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="11" font-weight="700">10%</text>
+        <text x="510" y="44" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">더 납작한 폰</text>
+      </g>
+      <text x="60" y="225" fill="#5DCAA5" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">16:9 기준이면 모든 가로 폰에서 높이 꽉 참(에셋 유지), 20:9에선 좌우 10% 띠만 — 잘림·축소 없음.</text>
+    </svg>
+    <div class="note good"><b>가로 폰 결론 —</b> 폰용 캔버스는 <b>16:9(가장 세로로 긴 비율)</b>가 정답. 모든 가로 폰에서 높이가 꽉 차 에셋 크기가 유지되고, 더 납작한 폰(20:9)에선 좌우 10% 빈 띠만 생긴다(잘림·축소 없음). 패드용 4:3과는 별도 레이아웃이 필요하지만 둘 다 가로라 재작업은 가볍다(아래 7번).</div>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span> 대응 전략 비교 (전부 가로 전제)</h2>
+    <table class="tbl">
+      <thead><tr><th>전략</th><th>작가 부담</th><th>디바이스 커버</th><th>인터랙션 좌표</th><th>평가</th></tr></thead>
+      <tbody>
+        <tr><td><b>단일 캔버스</b><br>(4:3 하나로)</td><td><span class="badge b-green">최소</span></td><td>패드 OK, <b>폰 40% 손실</b></td><td><span class="badge b-green">안전</span></td><td>가로 폰에서 양옆 휑함</td></tr>
+        <tr><td><b>단일 캔버스</b><br>(16:9 하나로)</td><td><span class="badge b-green">최소</span></td><td>폰 OK, <b>패드 큰 손실</b></td><td><span class="badge b-green">안전</span></td><td>패드에서 상하 잘림/축소</td></tr>
+        <tr class="hl"><td><b>2종 캔버스 + 프로파일</b><br>(패드 4:3 + 폰 16:9)</td><td><span class="badge b-amber">1.3~1.5배</span></td><td><b>전 기기 최적</b></td><td><span class="badge b-green">안전</span></td><td><b>권장 ★</b></td></tr>
+        <tr><td><b>반응형</b><br>(요소 재배치)</td><td><span class="badge b-red">매우 높음</span></td><td>넓음</td><td><span class="badge b-red">깨짐</span></td><td>좌표 인터랙션과 상극 — 탈락</td></tr>
+      </tbody>
+    </table>
+    <div class="note red"><b>단일 캔버스의 함정 —</b> 둘 다 가로라 한 캔버스로 합치고 싶지만, <b>어느 비율로 합쳐도 반대쪽이 손해</b>다. 4:3으로 합치면 가로 폰에서 좌우 40% 빈 띠가, 16:9로 합치면 패드에서 상하 잘림 또는 콘텐츠 축소가 생긴다. 가로 모드에선 <b>높이가 기준축</b>이라, 비율 차가 큰 4:3(1.33)과 16:9(1.78)를 한 캔버스로는 양쪽 다 만족시킬 수 없다.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span> 권장안 — 가로 2종 + 레이아웃 프로파일</h2>
+    <div class="note good">
+      <b>패드 4:3 + 폰 16:9, 두 캔버스. 로직·에셋은 1벌 공유, 좌표만 2벌.</b>
+    </div>
+    <ol>
+      <li><strong>패드용 = 4:3, 폰용 = 16:9.</strong> 각 그룹에서 "가장 세로로 긴(= 가장 정사각에 가까운) 비율" — 패드는 4:3, 가로 폰은 16:9. 그래야 높이가 꽉 차고 더 납작한 기기에선 좌우 빈 띠만 생긴다(잘림·축소 없음).</li>
+      <li><strong>로직과 좌표를 분리한다.</strong> 카드(트리거·조건·결과·이동)·변수·정답 데이터는 비율과 무관 → 1벌만. 요소의 위치 좌표만 비율별로 갖는다.</li>
+      <li><strong>같은 그룹 안의 비율 차이는 safe zone + 레터박스로 흡수.</strong> 패드 4:3 캔버스는 16:10까지 좌우 8% 띠, 폰 16:9 캔버스는 20:9까지 좌우 10% 띠로 커버.</li>
+      <li><strong>반응형(요소 재배치)은 채택하지 않는다.</strong> 인터랙션 좌표가 깨진다.</li>
+    </ol>
+
+    <h3>4:3 → 16:9 재작업이 가벼운 이유 (둘 다 가로)</h3>
+    <p>가로↔가로라 <strong>높이는 거의 그대로, 좌우로만 넓어진다.</strong> 세로↔가로처럼 구조를 통째로 바꾸지 않고, 중앙 핵심은 유지한 채 양옆만 채우거나 펼치면 된다.</p>
+    <svg viewBox="0 0 680 270" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="4:3 콘텐츠를 16:9로 재작업하는 두 가지 방식: 중앙 유지 후 양옆 확장, 또는 요소를 좌우로 펼치기">
+      <rect x="40" y="50" width="160" height="120" rx="6" fill="#5DCAA5" fill-opacity="0.45" stroke="#5DCAA5" stroke-width="0.5"/>
+      <circle cx="90" cy="95" r="16" fill="#5DCAA5" fill-opacity="0.8"/>
+      <rect x="115" y="115" width="60" height="40" rx="4" fill="#5DCAA5" fill-opacity="0.8"/>
+      <text x="120" y="42" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">4:3 원본</text>
+      <text x="120" y="190" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="11">로직·에셋 그대로</text>
+
+      <path d="M210 110 L250 110" stroke="#9aa3c4" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#9aa3c4" stroke-width="1.5"/></marker></defs>
+
+      <text x="355" y="44" text-anchor="middle" fill="#378ADD" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">방식 A · 중앙 유지 + 양옆 확장</text>
+      <rect x="270" y="52" width="170" height="60" rx="6" fill="none" stroke="#5F5E5A" stroke-width="1.5"/>
+      <rect x="270" y="52" width="170" height="60" rx="4" fill="#378ADD" fill-opacity="0.18"/>
+      <circle cx="312" cy="74" r="12" fill="#5DCAA5" fill-opacity="0.8"/>
+      <rect x="332" y="84" width="46" height="22" rx="3" fill="#5DCAA5" fill-opacity="0.8"/>
+      <text x="355" y="128" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">핵심 그대로, 남는 좌우엔 배경·장식 (가장 쉬움)</text>
+
+      <text x="355" y="162" text-anchor="middle" fill="#BA7517" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">방식 B · 요소를 좌우로 펼침</text>
+      <rect x="270" y="170" width="170" height="60" rx="6" fill="none" stroke="#5F5E5A" stroke-width="1.5"/>
+      <rect x="270" y="170" width="170" height="60" rx="4" fill="#EF9F27" fill-opacity="0.16"/>
+      <circle cx="294" cy="200" r="12" fill="#5DCAA5" fill-opacity="0.8"/>
+      <rect x="388" y="188" width="40" height="24" rx="3" fill="#5DCAA5" fill-opacity="0.8"/>
+      <text x="355" y="246" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">넓은 화면을 적극 활용 (폰 최적)</text>
+
+      <text x="595" y="74" text-anchor="middle" fill="#5DCAA5" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">재사용</text>
+      <text x="595" y="94" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">· 카드(로직)</text>
+      <text x="595" y="110" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">· 에셋</text>
+      <text x="595" y="126" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">· 정답 데이터</text>
+      <text x="595" y="170" text-anchor="middle" fill="#BA7517" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">재작업</text>
+      <text x="595" y="190" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">· 요소 좌표</text>
+      <text x="595" y="206" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">· 슬롯 위치</text>
+    </svg>
+
+    <h3>한 콘텐츠, 두 레이아웃 프로파일 (플레이어 자동 선택)</h3>
+    <p>하나의 콘텐츠가 로직·에셋을 공유하고, 레이아웃 프로파일만 2개를 갖는다. 플레이어가 실행 시 화면 비율을 보고 맞는 프로파일을 자동 로드한다.</p>
+    <svg viewBox="0 0 680 250" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="한 콘텐츠가 공유 로직과 두 레이아웃 프로파일을 갖고, 플레이어가 화면 비율로 자동 선택하는 구조">
+      <rect x="230" y="34" width="220" height="50" rx="8" fill="#5DCAA5" fill-opacity="0.18" stroke="#5DCAA5" stroke-width="0.5"/>
+      <text x="340" y="56" text-anchor="middle" fill="#5DCAA5" font-family="Noto Sans KR,sans-serif" font-size="13" font-weight="700">공유 코어 (1벌)</text>
+      <text x="340" y="74" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="11">로직·에셋·정답 데이터</text>
+
+      <path d="M300 84 L210 116" stroke="#9aa3c4" stroke-width="1.5" fill="none"/>
+      <path d="M380 84 L470 116" stroke="#9aa3c4" stroke-width="1.5" fill="none"/>
+
+      <rect x="80" y="118" width="260" height="46" rx="8" fill="#378ADD" fill-opacity="0.15" stroke="#378ADD" stroke-width="0.5"/>
+      <text x="210" y="139" text-anchor="middle" fill="#5b8def" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">프로파일 A · 패드 4:3</text>
+      <text x="210" y="156" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">좌표만 — 태블릿·PC용</text>
+
+      <rect x="360" y="118" width="260" height="46" rx="8" fill="#EF9F27" fill-opacity="0.14" stroke="#EF9F27" stroke-width="0.5"/>
+      <text x="490" y="139" text-anchor="middle" fill="#EF9F27" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">프로파일 B · 폰 16:9</text>
+      <text x="490" y="156" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">좌표만 — 가로 폰용</text>
+
+      <path d="M210 164 L210 196" stroke="#9aa3c4" stroke-width="1.5" fill="none"/>
+      <path d="M490 164 L490 196" stroke="#9aa3c4" stroke-width="1.5" fill="none"/>
+
+      <rect x="100" y="198" width="220" height="40" rx="6" fill="none" stroke="#5F5E5A" stroke-width="1.5"/>
+      <text x="210" y="222" text-anchor="middle" fill="#e8ebf5" font-family="Noto Sans KR,sans-serif" font-size="11.5">가로로 넓으면 → A 로드</text>
+      <rect x="380" y="198" width="220" height="40" rx="6" fill="none" stroke="#5F5E5A" stroke-width="1.5"/>
+      <text x="490" y="222" text-anchor="middle" fill="#e8ebf5" font-family="Noto Sans KR,sans-serif" font-size="11.5">와이드 폰이면 → B 로드</text>
+
+      <text x="340" y="100" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="10.5">플레이어가 화면 비율 감지</text>
+    </svg>
+    <div class="note good"><b>장점 —</b> 작가는 로직을 한 번만 만들고 좌표만 2벌(체감 1.3~1.5배). 콘텐츠 수정 시 로직은 한 곳만 고치면 양쪽 반영. OS 무관 — iOS·안드로이드·웹 모두 플레이어가 비율로 판단하므로 동일하게 동작한다.</div>
+
+    <h3>제안 기준 캔버스 (작가 작업 사이즈)</h3>
+    <table class="tbl">
+      <thead><tr><th>타깃</th><th>기준 종횡비</th><th>제안 작업 캔버스 (CSS px)</th><th>커버 범위</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td><b>패드 (주력)</b></td><td>4:3</td><td class="mono">1024×768 (또는 1366×1024)</td><td>모든 아이패드(꽉~좌우 8%) + 16:9 PC(좌우 12.5% 띠)</td></tr>
+        <tr class="hl"><td><b>폰 (가로)</b></td><td>16:9</td><td class="mono">1280×720 (또는 1600×900)</td><td>모든 가로 폰 — 16:9 꽉, 20:9 좌우 10% 띠 (높이 손실 없음)</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>참고 — 안드로이드도 폰/패드가 나뉜다.</b> iOS의 Universal 앱처럼 안드로이드도 smallest-width 한정자(sw600dp)로 폰·태블릿 레이아웃을 자동 전환한다. 단 우리는 웹 기반이라 OS 시스템이 아니라 <b>우리 플레이어가 직접 화면 비율로 프로파일을 선택</b>한다 — 그래서 OS와 무관하게 같은 2종 구조로 모두 대응된다.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">8</span> 작업 순서 — 어느 비율을 먼저 그릴까</h2>
+    <p>2종을 만들 때 <strong>어느 쪽을 먼저 기준으로 잡느냐</strong>가 중요하다. 가로 모드는 높이가 기준축이라, 시작 비율에 따라 반대쪽으로 갈 때 <strong>콘텐츠가 그대로 유지되거나 / 작아지거나</strong>가 갈린다. 결론부터: <strong>4:3(패드)을 먼저 그리는 것이 정답</strong>이다.</p>
+
+    <h3>4:3 먼저 → 16:9 폰 : 높이 유지, 좌우 띠만 (크기 손실 없음)</h3>
+    <p style="font-size:13px;color:var(--txt3);margin-bottom:6px">4:3에서 안전영역을 최대로 그린 뒤 16:9 폰으로 가면, 둘 다 높이가 기준이라 <b>콘텐츠 크기가 그대로 유지</b>되고 좌우에 빈 띠만 생긴다. 청록 = 동일 콘텐츠 · 주황 = 빈 띠</p>
+    <svg viewBox="0 0 680 320" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="4:3에서 최대로 그린 안전영역을 16:9 폰에 넣으면 높이가 유지되고 좌우에만 빈 띠가 생기는 모습">
+      <text x="175" y="80" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">4:3 패드 (안전영역 최대)</text>
+      <g>
+        <rect x="55" y="92" width="240" height="180" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="55" y="92" width="240" height="180" rx="4" fill="#5DCAA5" fill-opacity="0.5" stroke="#5DCAA5" stroke-width="1"/>
+        <circle cx="110" cy="165" r="28" fill="#5DCAA5" fill-opacity="0.85"/>
+        <rect x="160" y="195" width="110" height="55" rx="5" fill="#5DCAA5" fill-opacity="0.85"/>
+        <text x="175" y="130" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">화면 꽉 참</text>
+      </g>
+      <line x1="300" y1="182" x2="372" y2="182" stroke="#5DCAA5" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+      <text x="336" y="174" text-anchor="middle" fill="#5DCAA5" font-family="Noto Sans KR,sans-serif" font-size="10.5" font-weight="700">100% 유지</text>
+
+      <text x="505" y="80" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">16:9 폰 (같은 콘텐츠)</text>
+      <g>
+        <rect x="385" y="115" width="240" height="135" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="385" y="115" width="30" height="135" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="595" y="115" width="30" height="135" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="415" y="115" width="180" height="135" fill="#5DCAA5" fill-opacity="0.5" stroke="#5DCAA5" stroke-width="1"/>
+        <circle cx="457" cy="170" r="28" fill="#5DCAA5" fill-opacity="0.85"/>
+        <rect x="495" y="198" width="90" height="46" rx="5" fill="#5DCAA5" fill-opacity="0.85"/>
+        <text x="400" y="186" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="10" font-weight="700">띠</text>
+        <text x="610" y="186" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="10" font-weight="700">띠</text>
+      </g>
+      <text x="40" y="296" fill="#5DCAA5" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">캐릭터·콘텐츠 크기 그대로 (높이 100% 유지) — 좌우에 빈 띠만 생긴다.</text>
+    </svg>
+    <div class="note good"><b>4:3 → 16:9 방향은 손실 없음 —</b> 가로 모드에선 높이가 기준축이다. 4:3(더 정사각)을 16:9(더 납작)에 넣으면 높이가 같아 <b>콘텐츠가 축소되지 않고</b>, 폰이 더 넓은 만큼 좌우에 띠만 생긴다(배경으로 채움). 핵심 콘텐츠 크기가 유지된다.</div>
+
+    <h3>거꾸로 16:9 먼저 → 4:3 패드 : 75%로 축소 + 상하 띠</h3>
+    <p style="font-size:13px;color:var(--txt3);margin-bottom:6px">만약 16:9(폰)를 먼저 기준으로 잡고 4:3 패드로 가면, 폭이 맞지 않아 <b>콘텐츠가 75%로 작아지고</b> 상하에 띠가 생긴다. 청록 = 동일 콘텐츠 · 주황 = 빈 띠</p>
+    <svg viewBox="0 0 680 320" style="width:100%;height:auto;margin:8px 0 4px" role="img" aria-label="16:9에서 최대로 그린 안전영역을 4:3 패드에 넣으면 75퍼센트로 축소되고 상하에 빈 띠가 생기는 모습">
+      <text x="175" y="80" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">16:9 폰 (안전영역 최대)</text>
+      <g>
+        <rect x="40" y="105" width="270" height="152" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="40" y="105" width="270" height="152" rx="4" fill="#5DCAA5" fill-opacity="0.5" stroke="#5DCAA5" stroke-width="1"/>
+        <circle cx="100" cy="170" r="28" fill="#5DCAA5" fill-opacity="0.85"/>
+        <rect x="150" y="198" width="120" height="50" rx="5" fill="#5DCAA5" fill-opacity="0.85"/>
+        <text x="175" y="140" text-anchor="middle" fill="#04342C" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">화면 꽉 참</text>
+      </g>
+      <line x1="315" y1="181" x2="387" y2="181" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+      <text x="351" y="173" text-anchor="middle" fill="#BA7517" font-family="Noto Sans KR,sans-serif" font-size="10.5" font-weight="700">→ 75%</text>
+
+      <text x="505" y="80" text-anchor="middle" fill="#9aa3c4" font-family="Noto Sans KR,sans-serif" font-size="12" font-weight="700">4:3 패드 (같은 콘텐츠)</text>
+      <g>
+        <rect x="405" y="92" width="200" height="178" rx="6" fill="none" stroke="#5F5E5A" stroke-width="2"/>
+        <rect x="405" y="92" width="200" height="22" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="405" y="248" width="200" height="22" fill="#BA7517" fill-opacity="0.5"/>
+        <rect x="405" y="114" width="200" height="134" fill="#5DCAA5" fill-opacity="0.5" stroke="#5DCAA5" stroke-width="1"/>
+        <circle cx="450" cy="166" r="21" fill="#5DCAA5" fill-opacity="0.85"/>
+        <rect x="487" y="188" width="90" height="40" rx="5" fill="#5DCAA5" fill-opacity="0.85"/>
+        <text x="505" y="105" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="10" font-weight="700">상하 12.5% 띠</text>
+        <text x="505" y="264" text-anchor="middle" fill="#412402" font-family="Noto Sans KR,sans-serif" font-size="10" font-weight="700">상하 12.5% 띠</text>
+      </g>
+      <text x="40" y="296" fill="#BA7517" font-family="Noto Sans KR,sans-serif" font-size="12.5" font-weight="700">콘텐츠가 75%로 축소 — 캐릭터가 작아지고 상하에 띠 (폭이 안 맞아서).</text>
+    </svg>
+    <div class="note red"><b>16:9 → 4:3 방향은 축소 발생 —</b> 16:9(더 납작)를 4:3(더 정사각)에 넣으면 폭이 맞지 않아 콘텐츠가 <b>75%로 줄고 상하에 띠</b>가 생긴다. 폰 기준으로 키운 캐릭터가 패드에서 작아진다.</div>
+
+    <div class="note good" style="margin-top:18px">
+      <b>결론 — 작업 순서는 "4:3(패드) 먼저, 그다음 16:9(폰)".</b><br>
+      ① <b>4:3을 먼저 그린다</b> — 가장 정사각에 가까운 비율. 여기서 키운 콘텐츠는 16:9로 갈 때 <b>높이가 그대로 유지</b>되고 좌우에 띠만 생긴다(크기 손실 0).<br>
+      ② <b>16:9로 확장</b> — 로직·에셋은 그대로 두고, 4:3의 좌우에 배경·요소를 더해 폰의 넓은 폭을 채운다(방식 A·중앙 유지+양옆 확장).<br>
+      ③ <b>거꾸로(16:9 먼저)는 피한다</b> — 폰 기준으로 키우면 패드에서 75%로 축소된다.<br>
+      ④ 가로 모드의 핵심 원리: <b>"가장 정사각에 가까운 비율(4:3)에서 시작 → 더 납작한 비율(16:9)로 확장"</b>이 항상 크기 손실 없는 방향이다.
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">9</span> 가로 동화책 콘텐츠 제작 권고</h2>
+    <p>가로 동화책형 콘텐츠는 <strong>동화책을 펼친 느낌</strong>과 잘 맞고, 태블릿(아동 교육 1순위)에 최적화된다. 출시 범위에 따라 두 단계로 접근할 수 있다.</p>
+    <ul>
+      <li><strong>1단계 — 패드 4:3 먼저.</strong> 모든 아이패드를 잘림 없이 커버하고, 데스크톱 웹도 가로라 같은 캔버스로 들어간다(좌우 배경 띠). 가장 빠른 출시 경로이자, 8번에서 본 대로 <b>크기 손실 없이 16:9로 확장 가능한 올바른 시작점</b>이다.</li>
+      <li><strong>2단계 — 폰 16:9 추가.</strong> 4:3 로직·에셋을 그대로 가져와 좌표만 16:9로 재배치(방식 A·중앙 유지+양옆 확장이 가장 빠름). 높이가 유지되므로 캐릭터 크기 손실 없이 가로 폰까지 커버.</li>
+    </ul>
+    <div class="note good"><b>다음 단계 —</b> 이 기준(패드 4:3 = 1024×768/1366×1024, 폰 16:9 = 1280×720/1600×900)이 확정되면 ScreenSpec에서 <b>레이아웃 프로파일 구조</b>(공유 코어 + 프로파일별 좌표), 에디터의 "폰 버전 만들기" 변환 흐름, 에셋 해상도(2x/3x) 규칙을 그 위에 올린다.</div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">디바이스 화면 사이즈 & 안전 영역 조사 · 2026-06-29 · SuperStory / Playtoon Tech Division<br>출처: Apple/Samsung 공식 스펙, ScreenResolutionDB, ScreenSizeChecker (2026-02 갱신 기준)</div>
+</footer>
+</body>
+</html>
